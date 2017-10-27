@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 from tkinter.font import Font
 import os
 import icem_scripts
@@ -6,8 +7,8 @@ import icem_scripts
 class MainApplication:
     def __init__(self,master):
         self.font = Font(family="Arial", size=12)
-        self.wdir = os.getcwd().replace('\\','/')
-        self.master = master 
+        self.wdir = os.getcwd().replace('\\','/') 
+        self.master = master
         self.mainframe = tk.Frame(self.master)
         self.entrylist = [] 
          
@@ -147,12 +148,13 @@ class MainApplication:
         self.entry_mesh.insert(0,self.mesh_file_path)
         
         if self.mesh_file_path:
-            return_val = icem_scripts.import_named_selections(self.mesh_file_path,self.wdir)       
-            if (return_val == 1):
-                os.system('icemcfd -batch -script temp.tcl')
-                self.named_selections = icem_scripts.get_names_from_fbc('temp.fbc')
-                print (self.named_selections)
-                self.gui_set_optionmenu()
+            self.temp_files = icem_scripts.import_named_selections(self.mesh_file_path,self.wdir)       
+            os.system('icemcfd -batch -script temp.tcl')
+            self.named_selections = icem_scripts.get_names_from_fbc('temp.fbc')
+            self.gui_set_optionmenu()
+            
+        if self.temp_files:
+            self.cmd_delete_temp()
     
     def cmd_output_folder(self):
         self.output_folder = tk.filedialog.askdirectory(
@@ -172,13 +174,19 @@ class MainApplication:
             if not entry.get():
                 print ('Fill all entries!')
                 break
+     
+    def cmd_delete_temp(self):
+        if self.temp_files:
+            for file in self.temp_files:
+                if file.path.is_file():
+                    os.remove(file)
         
     
 def main():
     root = tk.Tk()
     root.title('Extrude mesh')
-    app2run = MainApplication(root)
+    ExtrudeApp = MainApplication(root)
     root.mainloop()
-    
+   
 if __name__ == '__main__':
     main()

@@ -4,6 +4,7 @@ import re
 
 def import_named_selections(inputfile,wdir):
     
+    temp_files = []
     template_string = """
     
     # -------------------------------------
@@ -34,8 +35,9 @@ def import_named_selections(inputfile,wdir):
     output = open ('temp.tcl','w')
     output.write(script_to_run)
     output.close()
-      
-    return 1
+    temp_files.extend(['temp.fbc','temp.atr','temp.fbc_old','temp.tcl'])
+    
+    return temp_files
 
 def get_names_from_fbc(inputfile):
     named_selections = []
